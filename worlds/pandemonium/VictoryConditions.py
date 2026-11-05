@@ -1,7 +1,5 @@
-from rule_builder.rules import Rule
-
-from .Rules import cleared
+from rule_builder.rules import Has, Rule
 
 
-def defeat_boss_victory() -> Rule:
-    return cleared("Boss")
+def credits_victory() -> Rule:
+    return Has("Credits")

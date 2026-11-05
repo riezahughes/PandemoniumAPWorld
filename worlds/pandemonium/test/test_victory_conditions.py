@@ -1,13 +1,14 @@
 from . import PandemoniumTestBase
 
 
-class TestDefeatBossVictory(PandemoniumTestBase):
-    def test_boss_requires_fake_item(self) -> None:
-        self.assertFalse(self.can_reach_location("Cleared: Boss"))
-        self.collect_by_name("Fake Item")
-        self.assertTrue(self.can_reach_location("Cleared: Boss"))
+class TestCreditsVictory(PandemoniumTestBase):
+    def test_credits_locked_at_game_completed(self) -> None:
+        location = self.world.get_location("Game Completed")
+        self.assertTrue(location.locked)
+        self.assertEqual(location.item.name, "Credits")
 
-    def test_victory_requires_fake_item(self) -> None:
-        self.assertBeatable(False)
-        self.collect_by_name("Fake Item")
-        self.assertBeatable(True)
+    def test_victory_requires_credits(self) -> None:
+        completion_condition = self.multiworld.completion_condition[self.player]
+        self.assertFalse(completion_condition(self.multiworld.state))
+        self.collect(self.world.get_location("Game Completed").item)
+        self.assertTrue(completion_condition(self.multiworld.state))

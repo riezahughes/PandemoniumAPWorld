@@ -5,11 +5,24 @@ from BaseClasses import MultiWorld, Region, Item, Entrance, Tutorial, ItemClassi
 
 from worlds.AutoWorld import World, WebWorld
 
-from .Items import PandemoniumItem, PandemoniumItemCategory, item_dictionary, item_descriptions, BuildItemPool
-from .Locations import PandemoniumLocation, PandemoniumLocationCategory, location_tables, location_dictionary
-from .Options import PandemoniumOption
-from .Rules import set_boss_rules
-from .VictoryConditions import defeat_boss_victory
+from .Items import PandemoniumItem, PandemoniumItemCategory, item_dictionary, item_descriptions, filler_item_names, BuildItemPool
+from .Locations import (
+    PandemoniumLocation,
+    PandemoniumLocationCategory,
+    PandemoniumLocationData,
+    location_tables,
+    location_dictionary,
+    percentage_thresholds,
+    percentage_from_name,
+)
+from .Options import PandemoniumOption, StartingLevelOptions, CharacterOptions
+from .Rules import set_level_unlock_rules, set_wishing_engine_rules, set_character_clear_rules
+from .VictoryConditions import credits_victory
+
+
+# Levels that can be picked as a random starting level. The Wishing Engine is left out, as it has no
+# unlock item and holds the game clear.
+random_starting_levels = [region_name for region_name in location_tables if region_name not in ("Menu", "Map", "The Wishing Engine")]
 
 
 class PandemoniumWeb(WebWorld):
@@ -49,10 +62,50 @@ class PandemoniumWorld(World):
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
         self.enabled_location_categories = set()
+        self.starting_level = "Skull Fortress"
+        self.spell_pages_required = 0
+        self.starting_characters: List[str] = ["Fargus"]
+        self.percentages: Set[int] = set()
 
     def generate_early(self):
+        if self.options.startinglevel.value == StartingLevelOptions.RANDOM_LEVEL:
+            self.starting_level = self.random.choice(random_starting_levels)
+
+        self.percentages = set(percentage_thresholds(self.options.levelpercentage.value))
+
+        character_option = self.options.characteroption.value
+        if character_option == CharacterOptions.NIKKI:
+            self.starting_characters = ["Nikki"]
+        elif character_option == CharacterOptions.BOTH:
+            self.starting_characters = ["Fargus", "Nikki"]
+        elif character_option == CharacterOptions.RANDOM_CHARACTER:
+            self.starting_characters = [self.random.choice(["Fargus", "Nikki"])]
+
+        # EVENT is deliberately left out: event locations get a locked event item in create_region
         self.enabled_location_categories.add(PandemoniumLocationCategory.PROGRESSION)
-        self.enabled_location_categories.add(PandemoniumLocationCategory.FILLER)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.LEVEL_CLEAR)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.RACE_CLEAR)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.PINBALL_CLEAR)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.LEVEL_PERCENTAGE)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.ENEMY_KILL)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.TRANSFORM_GATE)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.CHARACTER_CLEAR)
+
+    def is_location_enabled(self, location: PandemoniumLocationData) -> bool:
+        """Whether the player's options include this location in their world"""
+        multiclear = bool(self.options.multiclear.value)
+
+        if location.category == PandemoniumLocationCategory.LEVEL_CLEAR:
+            return not multiclear
+        if location.category == PandemoniumLocationCategory.CHARACTER_CLEAR:
+            return multiclear
+        if location.category == PandemoniumLocationCategory.PINBALL_CLEAR:  # Full Tilt
+            return bool(self.options.fulltilt.value)
+        if location.category == PandemoniumLocationCategory.RACE_CLEAR:  # Speed Greed
+            return bool(self.options.speedgreed.value)
+        if location.category == PandemoniumLocationCategory.LEVEL_PERCENTAGE:
+            return percentage_from_name(location.name) in self.percentages
+        return True
 
     def create_regions(self):
         # Create Regions
@@ -60,8 +113,28 @@ class PandemoniumWorld(World):
 
         list_of_regions = [
             "Menu",
-            "Level 1",
-            "Boss",
+            "Map",
+            "Skull Fortress",
+            "Hollow Stairway",
+            "Dungeon Tower",
+            "Lost Caves",
+            "Fungus Grotto",
+            "Acid Pools",
+            "Shroom Lord",
+            "Burning Desert",
+            "Branky Wastes",
+            "Spider Forest",
+            "Canopy Village",
+            "Soldier Barracks",
+            "Honcho's Logmill",
+            "Goon Honcho",
+            "Honcho's Airship",
+            "Dragoon Skyfort",
+            "Cloud Citadel",
+            "Efreet Palace",
+            "Frozen Cavern",
+            "Storm Temple",
+            "The Wishing Engine",
         ]
 
         regions.update({region_name: self.create_region(region_name, location_tables[region_name]) for region_name in list_of_regions})
@@ -71,14 +144,37 @@ class PandemoniumWorld(World):
             regions[from_region].exits.append(connection)
             connection.connect(regions[to_region])
 
-        create_connection("Menu", "Level 1")
-        create_connection("Level 1", "Boss")
+        create_connection("Menu", "Map")
+        create_connection("Map", "Skull Fortress")
+        create_connection("Map", "Hollow Stairway")
+        create_connection("Map", "Dungeon Tower")
+        create_connection("Map", "Lost Caves")
+        create_connection("Map", "Fungus Grotto")
+        create_connection("Map", "Acid Pools")
+        create_connection("Map", "Shroom Lord")
+        create_connection("Map", "Burning Desert")
+        create_connection("Map", "Branky Wastes")
+        create_connection("Map", "Spider Forest")
+        create_connection("Map", "Canopy Village")
+        create_connection("Map", "Soldier Barracks")
+        create_connection("Map", "Honcho's Logmill")
+        create_connection("Map", "Goon Honcho")
+        create_connection("Map", "Honcho's Airship")
+        create_connection("Map", "Dragoon Skyfort")
+        create_connection("Map", "Cloud Citadel")
+        create_connection("Map", "Efreet Palace")
+        create_connection("Map", "Frozen Cavern")
+        create_connection("Map", "Storm Temple")
+        create_connection("Map", "The Wishing Engine")
 
     # For each region, add the associated locations retrieved from the corresponding location_table
     def create_region(self, region_name, location_table) -> Region:
         new_region = Region(region_name, self.player, self.multiworld)
 
         for location in location_table:
+            if not self.is_location_enabled(location):
+                continue
+
             if location.category in self.enabled_location_categories:
                 new_location = PandemoniumLocation(
                     self.player,
@@ -100,13 +196,29 @@ class PandemoniumWorld(World):
         return new_region
 
     def create_items(self):
+        # Start the player with their starting level already unlocked
+        self.multiworld.push_precollected(self.create_item(f"{self.starting_level} Unlock"))
+
+        # ...and with their starting characters, so every character rule can simply check for the unlock
+        for character in self.starting_characters:
+            self.multiworld.push_precollected(self.create_item(f"{character} Unlock"))
+
         randomized_location_count = 0
         for location in self.multiworld.get_locations(self.player):
             if not location.locked and location.address is not None:
                 randomized_location_count += 1
 
         # Call BuildItemPool to get a list of item NAMES (strings)
-        item_names_to_add = BuildItemPool(randomized_location_count, self.options)
+        item_names_to_add = BuildItemPool(randomized_location_count, self.options, self.random, self.starting_level, self.starting_characters)
+
+        # With few checks enabled there may not be room for everything. Health upgrades are the only
+        # non-progression items that have to exist, so any that don't fit are given at the start instead.
+        while len(item_names_to_add) > randomized_location_count and "Health Upgrade" in item_names_to_add:
+            item_names_to_add.remove("Health Upgrade")
+            self.multiworld.push_precollected(self.create_item("Health Upgrade"))
+
+        # The Wishing Engine needs every spell page that made it into the pool
+        self.spell_pages_required = item_names_to_add.count("Spell Page")
 
         generated_items: List[Item] = []
         for item_name in item_names_to_add:
@@ -135,12 +247,14 @@ class PandemoniumWorld(World):
         return PandemoniumItem(name, item_classification, self.item_name_to_id.get(name), self.player)
 
     def get_filler_item_name(self) -> str:
-        return "Fake Item"  # placeholder until real filler items exist
+        return self.random.choice(filler_item_names)
 
     def set_rules(self) -> None:
-        self.set_completion_rule(defeat_boss_victory())
+        self.set_completion_rule(credits_victory())
 
-        set_boss_rules(self)
+        set_level_unlock_rules(self)
+        set_wishing_engine_rules(self)
+        set_character_clear_rules(self)
 
     def fill_slot_data(self) -> Dict[str, object]:
         slot_data: Dict[str, object] = {}
@@ -172,7 +286,17 @@ class PandemoniumWorld(World):
 
         slot_data = {
             "options": {
+                "progression": self.options.progression.value,
+                "goal": self.options.goal.value,
                 "deathlink": self.options.deathlink.value,
+                "multiclear": self.options.multiclear.value,
+                "characteroption": self.options.characteroption.value,
+                "startingcharacters": self.starting_characters,
+                "startinglevel": self.starting_level,
+                "levelpercentage": self.options.levelpercentage.value,
+                "speedgreed": self.options.speedgreed.value,
+                "fulltilt": self.options.fulltilt.value,
+                "spellpages": self.spell_pages_required,
             },
             "seed": self.multiworld.seed_name,  # to verify the server's multiworld
             "slot": self.multiworld.player_name[self.player],  # to connect to server
