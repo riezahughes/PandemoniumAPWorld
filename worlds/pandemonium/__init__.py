@@ -213,12 +213,12 @@ class PandemoniumWorld(World):
 
         # With few checks enabled there may not be room for everything. Health upgrades are the only
         # non-progression items that have to exist, so any that don't fit are given at the start instead.
-        while len(item_names_to_add) > randomized_location_count and "Health Upgrade" in item_names_to_add:
-            item_names_to_add.remove("Health Upgrade")
-            self.multiworld.push_precollected(self.create_item("Health Upgrade"))
+        while len(item_names_to_add) > randomized_location_count and "Progressive Health Upgrade" in item_names_to_add:
+            item_names_to_add.remove("Progressive Health Upgrade")
+            self.multiworld.push_precollected(self.create_item("Progressive Health Upgrade"))
 
         # The Wishing Engine needs every spell page that made it into the pool
-        self.spell_pages_required = item_names_to_add.count("Spell Page")
+        self.spell_pages_required = item_names_to_add.count("Spellbook Page")
 
         generated_items: List[Item] = []
         for item_name in item_names_to_add:
@@ -296,7 +296,7 @@ class PandemoniumWorld(World):
                 "levelpercentage": self.options.levelpercentage.value,
                 "speedgreed": self.options.speedgreed.value,
                 "fulltilt": self.options.fulltilt.value,
-                "spellpages": self.spell_pages_required,
+                "spellbook_pages": self.spell_pages_required,
             },
             "seed": self.multiworld.seed_name,  # to verify the server's multiworld
             "slot": self.multiworld.player_name[self.player],  # to connect to server

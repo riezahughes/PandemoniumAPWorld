@@ -80,15 +80,16 @@ _all_items = [
     ("Storm Temple Unlock", 27, PandemoniumItemCategory.LEVEL, True),
     # ("Wishing Engine Unlock", 28, PandemoniumItemCategory.LEVEL, True),  # Ignored, as this will be unlocked by collecting mcguffins
     # Transformation Unlock Items
-    ("Frog Unlock", 29, PandemoniumItemCategory.TRANSFORMATION, True),
-    ("Rhino Unlock", 30, PandemoniumItemCategory.TRANSFORMATION, True),
-    ("Dragon Unlock", 31, PandemoniumItemCategory.TRANSFORMATION, True),
-    ("Turtle Unlock", 32, PandemoniumItemCategory.TRANSFORMATION, True),
+    ("Frog Transformation Unlock", 29, PandemoniumItemCategory.TRANSFORMATION, True),
+    ("Rhino Transformation Unlock", 30, PandemoniumItemCategory.TRANSFORMATION, True),
+    ("Dragon Transformation Unlock", 31, PandemoniumItemCategory.TRANSFORMATION, True),
+    ("Turtle Transformation Unlock", 32, PandemoniumItemCategory.TRANSFORMATION, True),
     # Player Stat Items
-    ("Health Upgrade", 34, PandemoniumItemCategory.STAT_ITEM, False),
-    ("Extra Life", 35, PandemoniumItemCategory.STAT_ITEM, False),
+    ("Progressive Health Upgrade", 34, PandemoniumItemCategory.STAT_ITEM, False),
+    ("Free Health", 35, PandemoniumItemCategory.STAT_ITEM, False),
+    ("Extra Life", 36, PandemoniumItemCategory.STAT_ITEM, False),
     # Progression Items
-    ("Spell Page", 36, PandemoniumItemCategory.PROGRESSION, True),
+    ("Spellbook Page", 37, PandemoniumItemCategory.PROGRESSION, True),
     # Events (no code, never sent over the network)
     ("Credits", None, PandemoniumItemCategory.EVENT, True),
 ]
@@ -107,9 +108,7 @@ item_dictionary: dict[str, PandemoniumItemData] = {item_data.name: item_data for
 HEALTH_UPGRADE_COUNT = 4
 
 # Items used to pad out the pool once everything else has been added
-filler_item_names: List[str] = [item_data.name for item_data in _all_items if item_data.category == PandemoniumItemCategory.WEAPON] + [
-    "Extra Life"
-]
+filler_item_names: List[str] = [item_data.name for item_data in _all_items if item_data.category == PandemoniumItemCategory.WEAPON] + ["Extra Life"]
 
 
 def BuildItemPool(count: int, options, random: Random, starting_level: str, starting_characters: List[str]) -> List[str]:
@@ -121,7 +120,7 @@ def BuildItemPool(count: int, options, random: Random, starting_level: str, star
     item_pool_names: List[str] = [
         item_data.name
         for item_data in _all_items
-        if (item_data.category == PandemoniumItemCategory.PROGRESSION and item_data.name != "Spell Page")
+        if (item_data.category == PandemoniumItemCategory.PROGRESSION and item_data.name != "Spellbook Page")
         or item_data.category == PandemoniumItemCategory.LEVEL
         or item_data.category == PandemoniumItemCategory.TRANSFORMATION
     ]
@@ -134,14 +133,14 @@ def BuildItemPool(count: int, options, random: Random, starting_level: str, star
         if character not in starting_characters:
             item_pool_names.append(f"{character} Unlock")
 
-    item_pool_names.extend(["Health Upgrade"] * HEALTH_UPGRADE_COUNT)
+    item_pool_names.extend(["Progressive Health Upgrade"] * HEALTH_UPGRADE_COUNT)
 
     # Spell pages only go in for the spell page goals, and are capped to the room left in the pool
     if options.goal.value in (GoalOptions.SPELL_PAGES, GoalOptions.BOTH):
-        spell_page_count = min(options.spellpages.value, max(count - len(item_pool_names), 0))
-        if spell_page_count < options.spellpages.value:
-            print(f"Warning: Only room for {spell_page_count} of {options.spellpages.value} spell pages. Lowering the requirement to match.")
-        item_pool_names.extend(["Spell Page"] * spell_page_count)
+        spell_page_count = min(options.spellbook_pages.value, max(count - len(item_pool_names), 0))
+        if spell_page_count < options.spellbook_pages.value:
+            print(f"Warning: Only room for {spell_page_count} of {options.spellbook_pages.value} spell pages. Lowering the requirement to match.")
+        item_pool_names.extend(["Spellbook Page"] * spell_page_count)
 
     if len(item_pool_names) > count:
         print(f"Warning: Item pool size ({len(item_pool_names)}) is larger than location count ({count}).")

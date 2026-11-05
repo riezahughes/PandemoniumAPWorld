@@ -34,7 +34,7 @@ def set_level_unlock_rules(self: "PandemoniumWorld") -> None:
 
 def set_wishing_engine_rules(self: "PandemoniumWorld") -> None:
     bosses = cleared(self, "Shroom Lord") & cleared(self, "Goon Honcho")
-    spell_pages = Has("Spell Page", count=self.spell_pages_required)
+    spell_pages = Has("Spellbook Page", count=self.spell_pages_required)
 
     if self.options.goal.value == GoalOptions.SPELL_PAGES:
         rule = spell_pages

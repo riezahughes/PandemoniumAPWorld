@@ -209,6 +209,7 @@ def percentage_thresholds(step: int) -> List[int]:
 def percentage_from_name(name: str) -> int:
     return int(name.split(" Percent Cleared: ")[0])
 
+
 # Each level clear also gets a per-character clear, used when levels must be cleared as both characters.
 # These are appended to the end of each region so the IDs of the locations above never move.
 for location_table in location_tables.values():

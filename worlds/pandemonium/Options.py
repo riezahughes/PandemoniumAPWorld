@@ -114,7 +114,7 @@ class GoalOption(Choice):
     option_both = GoalOptions.BOTH
 
 
-class SpellPageRange(Range):
+class SpellbookPageRange(Range):
     """
     If you've chosen Spell Page Hunt or Both, how many spell pages must be collected to unlock the final boss?
     This many spell pages are added to the item pool. If there isn't room for them all, it is lowered to fit.
@@ -158,4 +158,4 @@ class PandemoniumOption(PerGameCommonOptions):
     levelpercentage: LevelPercentageRange
     speedgreed: IncludeSpeedGreedOption
     fulltilt: IncludeFullTiltOption
-    spellpages: SpellPageRange
+    spellbook_pages: SpellbookPageRange
