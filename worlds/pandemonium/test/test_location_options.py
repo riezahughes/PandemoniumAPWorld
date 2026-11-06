@@ -90,3 +90,24 @@ class TestCharacterClearRules(PandemoniumTestBase):
         start_inventory = {item.name for item in self.multiworld.precollected_items[self.player]}
         self.assertIn("Fargus Unlock", start_inventory)
         self.assertIn("Nikki Unlock", start_inventory)
+
+
+class TestEnemySanityOff(PandemoniumTestBase):
+    options = {"enemysanity": "false"}
+
+    def test_enemy_locations_removed(self) -> None:
+        names = location_names(self)
+        self.assertFalse(any(name.endswith(" Defeated") for name in names))
+
+
+class TestEnemySanityOn(PandemoniumTestBase):
+    options = {"enemysanity": "true"}
+
+    def test_enemy_locations_included(self) -> None:
+        names = location_names(self)
+        self.assertIn("Skull Fortress: Part 1 - 1st Enemy Defeated", names)
+        self.assertIn("Dragoon Skyfort: Part 1 - Bomb 4 Defeated", names)
+
+    def test_boss_levels_have_no_enemies(self) -> None:
+        names = location_names(self)
+        self.assertFalse(any(name.startswith(("Shroom Lord: ", "Goon Honcho: ")) and name.endswith(" Defeated") for name in names))

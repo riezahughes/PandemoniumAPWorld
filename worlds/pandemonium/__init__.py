@@ -103,6 +103,8 @@ class PandemoniumWorld(World):
             return bool(self.options.fulltilt.value)
         if location.category == PandemoniumLocationCategory.RACE_CLEAR:  # Speed Greed
             return bool(self.options.speedgreed.value)
+        if location.category == PandemoniumLocationCategory.ENEMY_KILL:
+            return bool(self.options.enemysanity.value)
         if location.category == PandemoniumLocationCategory.LEVEL_PERCENTAGE:
             return percentage_from_name(location.name) in self.percentages
         return True
@@ -296,6 +298,7 @@ class PandemoniumWorld(World):
                 "levelpercentage": self.options.levelpercentage.value,
                 "speedgreed": self.options.speedgreed.value,
                 "fulltilt": self.options.fulltilt.value,
+                "enemysanity": self.options.enemysanity.value,
                 "spellbook_pages": self.spell_pages_required,
             },
             "seed": self.multiworld.seed_name,  # to verify the server's multiworld

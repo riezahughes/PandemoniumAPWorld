@@ -100,6 +100,15 @@ class IncludeFullTiltOption(Toggle):
     option_false = 0
 
 
+class EnemySanityOption(Toggle):
+    """If enabled, defeating each tracked enemy in a level gives a check. Boss levels have no enemy checks."""
+
+    display_name = "EnemySanity"
+    default = 0
+    option_true = 1
+    option_false = 0
+
+
 class GoalOption(Choice):
     """Lets the user choose the completion goal
     Defeat Final Boss - find the level unlock and beat the final boss
@@ -158,4 +167,5 @@ class PandemoniumOption(PerGameCommonOptions):
     levelpercentage: LevelPercentageRange
     speedgreed: IncludeSpeedGreedOption
     fulltilt: IncludeFullTiltOption
+    enemysanity: EnemySanityOption
     spellbook_pages: SpellbookPageRange
