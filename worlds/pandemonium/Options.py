@@ -102,6 +102,29 @@ class EnemySanityOption(Toggle):
     option_false = 0
 
 
+class PointSanityOption(Toggle):
+    """If enabled, each level gives checks as you collect its treasure points. Boss levels have no point checks."""
+
+    display_name = "Pointsanity"
+    default = 0
+    option_true = 1
+    option_false = 0
+
+
+class PointSanityRange(Range):
+    """
+    If Pointsanity is on, how many treasure points between each check.
+    A check is given at every multiple of this number, plus one at the level's maximum if the multiples don't land on it.
+    Levels 1 to 4 have 150 points, levels 5 to 12 have 250 and levels 13 to 18 have 350 (boss levels aren't counted).
+    EG: 50 gives 50, 100 and 150 in the first four levels, and 50 to 350 in steps of 50 in the last six.
+    """
+
+    display_name = "Pointsanity Break Point"
+    range_start = 1
+    range_end = 350
+    default = 50
+
+
 class GoalOption(Choice):
     """Lets the user choose the completion goal
     Defeat Final Boss - find the level unlock and beat the final boss
@@ -175,4 +198,6 @@ class PandemoniumOption(PerGameCommonOptions):
     speed_greed: IncludeSpeedGreedOption
     full_tilt: IncludeFullTiltOption
     enemysanity: EnemySanityOption
+    pointsanity: PointSanityOption
+    pointsanity_range: PointSanityRange
     spellbook_pages: SpellbookPageRange

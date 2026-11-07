@@ -14,6 +14,7 @@ class PandemoniumLocationCategory(IntEnum):
     ENEMY_KILL = 6
     TRANSFORM_GATE = 7
     CHARACTER_CLEAR = 8
+    POINTS = 9
 
 
 class PandemoniumLocationData(NamedTuple):
@@ -216,6 +217,24 @@ def max_percentage(level: str) -> int:
 def percentage_thresholds(step: int, maximum: int = 100) -> List[int]:
     """Every multiple of `step` below `maximum`, then `maximum` itself. This gives ceil(maximum / step) checks per level."""
     return list(range(step, maximum, step)) + [maximum]
+
+
+# Pointsanity: the most treasure points that can be collected in each level (boss levels have none)
+POINT_MAXIMUMS: Dict[str, int] = {
+    **{level: 150 for level in ("Skull Fortress", "Hollow Stairway", "Dungeon Tower", "Lost Caves")},
+    **{level: 250 for level in ("Fungus Grotto", "Acid Pools", "Burning Desert", "Branky Wastes", "Spider Forest",
+                                "Canopy Village", "Soldier Barracks", "Honcho's Logmill")},
+    **{level: 350 for level in ("Honcho's Airship", "Dragoon Skyfort", "Cloud Citadel", "Efreet Palace", "Frozen Cavern",
+                                "Storm Temple")},
+}
+
+
+def points_from_name(name: str) -> int:
+    return int(name.split(": ")[1].removesuffix(" Points Collected"))
+
+
+def points_level_from_name(name: str) -> str:
+    return name.split(": ")[0]
 
 
 def percentage_from_name(name: str) -> int:
@@ -926,6 +945,14 @@ for region_name, enemies in enemy_tables.items():
     location_tables[region_name].extend(
         PandemoniumLocationData(f"{region_name}: {enemy} Defeated", "Extra Life", PandemoniumLocationCategory.ENEMY_KILL)
         for enemy in enemies
+    )
+
+# Every possible point check (1 up to the level's maximum), so the IDs are the same whatever break point the player
+# picks; each world only keeps the break points its option produces. Appended last so earlier IDs never move.
+for region_name, maximum in POINT_MAXIMUMS.items():
+    location_tables[region_name].extend(
+        PandemoniumLocationData(f"{region_name}: {points} Points Collected", "Extra Life", PandemoniumLocationCategory.POINTS)
+        for points in range(1, maximum + 1)
     )
 
 location_dictionary: Dict[str, PandemoniumLocationData] = {}

@@ -15,6 +15,9 @@ from .Locations import (
     percentage_thresholds,
     percentage_from_name,
     percentage_level_from_name,
+    points_from_name,
+    points_level_from_name,
+    POINT_MAXIMUMS,
     max_percentage,
 )
 from .Options import PandemoniumOption, StartingLevelOptions, CharacterOptions
@@ -70,6 +73,8 @@ class PandemoniumWorld(World):
         self.starting_characters: List[str] = ["Fargus"]
         # the percentage thresholds each level gives checks at
         self.percentages: Dict[str, Set[int]] = {}
+        # the point break points each level gives checks at (Pointsanity)
+        self.point_thresholds: Dict[str, Set[int]] = {}
 
     def generate_early(self):
         starting_keys = min(self.options.starting_keys.value, len(random_starting_levels))
@@ -83,6 +88,10 @@ class PandemoniumWorld(World):
 
         step = self.options.level_percentage_range.value
         self.percentages = {level: set(percentage_thresholds(step, max_percentage(level))) for level in location_tables}
+
+        # same break point rule as the percentages, capped at each level's point maximum
+        point_step = self.options.pointsanity_range.value
+        self.point_thresholds = {level: set(percentage_thresholds(point_step, maximum)) for level, maximum in POINT_MAXIMUMS.items()}
 
         character_option = self.options.character_option.value
         if character_option == CharacterOptions.NIKKI:
@@ -101,6 +110,7 @@ class PandemoniumWorld(World):
         self.enabled_location_categories.add(PandemoniumLocationCategory.ENEMY_KILL)
         self.enabled_location_categories.add(PandemoniumLocationCategory.TRANSFORM_GATE)
         self.enabled_location_categories.add(PandemoniumLocationCategory.CHARACTER_CLEAR)
+        self.enabled_location_categories.add(PandemoniumLocationCategory.POINTS)
 
     def is_location_enabled(self, location: PandemoniumLocationData) -> bool:
         """Whether the player's options include this location in their world"""
@@ -114,6 +124,10 @@ class PandemoniumWorld(World):
             return bool(self.options.full_tilt.value)
         if location.category == PandemoniumLocationCategory.RACE_CLEAR:  # Speed Greed
             return bool(self.options.speed_greed.value)
+        if location.category == PandemoniumLocationCategory.POINTS:
+            if not self.options.pointsanity.value:
+                return False
+            return points_from_name(location.name) in self.point_thresholds[points_level_from_name(location.name)]
         if location.category == PandemoniumLocationCategory.ENEMY_KILL:
             return bool(self.options.enemysanity.value)
         if location.category == PandemoniumLocationCategory.LEVEL_PERCENTAGE:
@@ -315,6 +329,8 @@ class PandemoniumWorld(World):
                 "speed_greed": self.options.speed_greed.value,
                 "full_tilt": self.options.full_tilt.value,
                 "enemysanity": self.options.enemysanity.value,
+                "pointsanity": self.options.pointsanity.value,
+                "pointsanity_range": self.options.pointsanity_range.value,
                 "spellbook_pages": self.spell_pages_required,
             },
             "seed": self.multiworld.seed_name,  # to verify the server's multiworld
