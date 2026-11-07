@@ -11,8 +11,8 @@ class TestSlotDataOptions(PandemoniumTestBase):
             set(options),
             {
                 "goal", "deathlink", "multiclear", "character_option", "starting_characters",
-                "starting_level", "starting_keys", "starting_levels", "level_percentage", "level_percentage_range", "speed_greed", "full_tilt",
-                "enemysanity", "pointsanity", "pointsanity_range", "spellbook_pages",
+                "starting_level", "starting_keys", "starting_levels", "level_percentage", "level_percentage_range", "level_percentage_max_range", "speed_greed", "full_tilt",
+                "enemysanity", "transformations_in_pool", "pointsanity", "pointsanity_range", "spellbook_pages",
             },
         )
         self.assertEqual(options["level_percentage"], 1)

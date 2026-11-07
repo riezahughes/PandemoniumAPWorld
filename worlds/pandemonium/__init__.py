@@ -87,7 +87,8 @@ class PandemoniumWorld(World):
             self.starting_levels = random_starting_levels[:starting_keys]
 
         step = self.options.level_percentage_range.value
-        self.percentages = {level: set(percentage_thresholds(step, max_percentage(level))) for level in location_tables}
+        max_range = self.options.level_percentage_max_range.value
+        self.percentages = {level: set(percentage_thresholds(step, min(max_range, max_percentage(level)))) for level in location_tables}
 
         # same break point rule as the percentages, capped at each level's point maximum
         point_step = self.options.pointsanity_range.value
@@ -326,9 +327,11 @@ class PandemoniumWorld(World):
                 "starting_levels": self.starting_levels,
                 "level_percentage": self.options.level_percentage.value,
                 "level_percentage_range": self.options.level_percentage_range.value,
+                "level_percentage_max_range": self.options.level_percentage_max_range.value,
                 "speed_greed": self.options.speed_greed.value,
                 "full_tilt": self.options.full_tilt.value,
                 "enemysanity": self.options.enemysanity.value,
+                "transformations_in_pool": self.options.transformations_in_pool.value,
                 "pointsanity": self.options.pointsanity.value,
                 "pointsanity_range": self.options.pointsanity_range.value,
                 "spellbook_pages": self.spell_pages_required,

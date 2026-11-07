@@ -32,10 +32,11 @@ class CharacterOption(Choice):
     Nikki - Start the game with Nikki
     Both - Start the game with both characters unlocked
     Random Character - Start the game with either Fargus or Nikki, picked at random
+    !! DOES NOT WORK. CANNOT FIGURE OUT HOW TO CHANGE CHARACTERS YET. THE OPTIONS HERE GENERATE CORRECTLY THOUGH. LEAVE IT AS BOTH
     """
 
     display_name = "Starting Character"
-    default = CharacterOptions.FARGUS
+    default = CharacterOptions.BOTH
     option_fargus = CharacterOptions.FARGUS
     option_nikki = CharacterOptions.NIKKI
     option_both = CharacterOptions.BOTH
@@ -62,17 +63,32 @@ class LevelPercentageOption(Toggle):
 
 class LevelPercentageRange(Range):
     """
-    How much percentage of the level must be completed to get a check. Boss levels have no percentage checks.
-    A check is given at every multiple of this number, plus one at 100% if the multiples don't land on it.
+    How many percent of a level must be completed between each check. Boss levels have no percentage checks.
+    A check is given at every multiple of this number, plus one at the level's maximum if the multiples don't land on it.
+    The maximum is 100%, or the Level Percentage Max Range if that is lower.
     EG: 25 gives 4 checks per level (25, 50, 75, 100), 30 gives 4 checks per level (30, 60, 90, 100),
     60 gives 2 checks per level (60, 100), and 100 gives 1 check per level
     Note: stage 10, 11 and 17 are impossible to get 100% on, so it will max out at 95%.
     """
 
-    display_name = "Level Completion Percentage for Checks"
+    display_name = "Level Percentage Break Point"
     range_start = 1
     range_end = 100
     default = 20
+
+
+class LevelPercentageMaxRange(Range):
+    """
+    The highest percentage of a level that gives a check. Boss levels have no percentage checks.
+    EG: a break point of 10 with a max range of 60 gives checks at 10, 20, 30, 40, 50 and 60.
+    Levels that can't reach 100% (stage 10, 11 and 17 max out at 95%) never go above their own maximum.
+    If the break point doesn't land on this number, a final check is given at the max range.
+    """
+
+    display_name = "Level Percentage Max Range"
+    range_start = 1
+    range_end = 100
+    default = 80
 
 
 class IncludeSpeedGreedOption(Toggle):
@@ -89,6 +105,18 @@ class IncludeFullTiltOption(Toggle):
 
     display_name = "Include Full Tilt Checks"
     default = 1
+    option_true = 1
+    option_false = 0
+
+
+class TransformationsInPoolOption(Toggle):
+    """If enabled, the Frog, Rhino, Dragon and Turtle transformation unlocks are shuffled into the item pool.
+    If disabled, they are not in the pool.
+    !!! DOES NOT WORK YET. I CANT CHANGE IT IN THE GAME CORRECTLY. LEAVE IT AS OFF.
+    """
+
+    display_name = "Transformations in Pool"
+    default = 0
     option_true = 1
     option_false = 0
 
@@ -195,9 +223,11 @@ class PandemoniumOption(PerGameCommonOptions):
     starting_keys: RandomStartingKeys
     level_percentage: LevelPercentageOption
     level_percentage_range: LevelPercentageRange
+    level_percentage_max_range: LevelPercentageMaxRange
     speed_greed: IncludeSpeedGreedOption
     full_tilt: IncludeFullTiltOption
     enemysanity: EnemySanityOption
+    transformations_in_pool: TransformationsInPoolOption
     pointsanity: PointSanityOption
     pointsanity_range: PointSanityRange
     spellbook_pages: SpellbookPageRange

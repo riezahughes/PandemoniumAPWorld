@@ -36,7 +36,7 @@ def percentage_location_names(test: PandemoniumTestBase, level: str) -> set[str]
 
 
 class TestThirtyPercent(PandemoniumTestBase):
-    options = {"level_percentage": "true", "level_percentage_range": 30}
+    options = {"level_percentage": "true", "level_percentage_range": 30, "level_percentage_max_range": 100}
 
     def test_four_checks_per_level(self) -> None:
         self.assertEqual(
@@ -66,7 +66,7 @@ class TestThirtyPercent(PandemoniumTestBase):
 
 
 class TestHundredPercent(PandemoniumTestBase):
-    options = {"level_percentage": "true", "level_percentage_range": 100}
+    options = {"level_percentage": "true", "level_percentage_range": 100, "level_percentage_max_range": 100}
 
     def test_one_check_per_level(self) -> None:
         self.assertEqual(percentage_location_names(self, "Storm Temple"), {"100 Percent Cleared: Storm Temple"})
@@ -77,7 +77,7 @@ class TestHundredPercent(PandemoniumTestBase):
 
 
 class TestOnePercent(PandemoniumTestBase):
-    options = {"level_percentage": "true", "level_percentage_range": 1}
+    options = {"level_percentage": "true", "level_percentage_range": 1, "level_percentage_max_range": 100}
 
     def test_hundred_checks_per_level(self) -> None:
         self.assertEqual(len(percentage_location_names(self, "Lost Caves")), 100)
@@ -85,6 +85,39 @@ class TestOnePercent(PandemoniumTestBase):
     def test_capped_levels_stop_at_ninety_five(self) -> None:
         for level in ("Canopy Village", "Soldier Barracks", "Frozen Cavern"):
             self.assertEqual(len(percentage_location_names(self, level)), 95)
+
+
+class TestMaxRange(PandemoniumTestBase):
+    options = {"level_percentage": "true", "level_percentage_range": 10, "level_percentage_max_range": 60}
+
+    def test_stops_at_max_range(self) -> None:
+        self.assertEqual(
+            percentage_location_names(self, "Skull Fortress"),
+            {f"{percent} Percent Cleared: Skull Fortress" for percent in (10, 20, 30, 40, 50, 60)},
+        )
+
+    def test_capped_level_follows_same_range(self) -> None:
+        self.assertEqual(len(percentage_location_names(self, "Frozen Cavern")), 6)
+
+
+class TestMaxRangeUneven(PandemoniumTestBase):
+    options = {"level_percentage": "true", "level_percentage_range": 25, "level_percentage_max_range": 60}
+
+    def test_final_check_at_max_range(self) -> None:
+        self.assertEqual(
+            percentage_location_names(self, "Skull Fortress"),
+            {f"{percent} Percent Cleared: Skull Fortress" for percent in (25, 50, 60)},
+        )
+
+
+class TestMaxRangeAboveLevelCap(PandemoniumTestBase):
+    options = {"level_percentage": "true", "level_percentage_range": 50, "level_percentage_max_range": 100}
+
+    def test_capped_level_still_ends_at_ninety_five(self) -> None:
+        self.assertEqual(
+            percentage_location_names(self, "Frozen Cavern"),
+            {"50 Percent Cleared: Frozen Cavern", "95 Percent Cleared: Frozen Cavern"},
+        )
 
 
 class TestLevelPercentageOff(PandemoniumTestBase):

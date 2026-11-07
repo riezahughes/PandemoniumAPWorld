@@ -122,7 +122,7 @@ def BuildItemPool(count: int, options, random: Random, starting_levels: List[str
         for item_data in _all_items
         if (item_data.category == PandemoniumItemCategory.PROGRESSION and item_data.name != "Spellbook Page")
         or item_data.category == PandemoniumItemCategory.LEVEL
-        or item_data.category == PandemoniumItemCategory.TRANSFORMATION
+        or (item_data.category == PandemoniumItemCategory.TRANSFORMATION and options.transformations_in_pool.value)
     ]
 
     # The starting levels' unlocks are given to the player up front instead
