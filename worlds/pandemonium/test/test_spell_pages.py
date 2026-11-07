@@ -10,7 +10,7 @@ class TestDefeatFinalBossGoal(PandemoniumTestBase):
 
 
 class TestSpellPageHuntGoal(PandemoniumTestBase):
-    options = {"goal": "spell_page_hunt", "spellbook_pages": 10, "startinglevel": "skull_fortress"}
+    options = {"goal": "spell_page_hunt", "spellbook_pages": 10, "starting_level": "progressive", "starting_keys": 1}
 
     def test_spell_pages_in_pool(self) -> None:
         self.assertEqual(len(self.get_items_by_name("Spellbook Page")), 10)
@@ -25,7 +25,7 @@ class TestSpellPageHuntGoal(PandemoniumTestBase):
 
 
 class TestBothGoal(PandemoniumTestBase):
-    options = {"goal": "both", "spellbook_pages": 10, "startinglevel": "skull_fortress"}
+    options = {"goal": "both", "spellbook_pages": 10, "starting_level": "progressive", "starting_keys": 1}
 
     def test_spell_pages_in_pool(self) -> None:
         self.assertEqual(len(self.get_items_by_name("Spellbook Page")), 10)
@@ -44,7 +44,8 @@ class TestBothGoal(PandemoniumTestBase):
 
 class TestTooManySpellPages(PandemoniumTestBase):
     # Keep the location count low so 100 spell pages can't fit
-    options = {"goal": "spell_page_hunt", "spellbook_pages": 100, "levelpercentage": 100, "fulltilt": "false", "speedgreed": "false"}
+    options = {"goal": "spell_page_hunt", "spellbook_pages": 100, "level_percentage": "false", "full_tilt": "false", "speed_greed": "false",
+               "enemysanity": "false", "multiclear": "false"}
 
     def test_requirement_lowered_to_fit(self) -> None:
         pages = len(self.get_items_by_name("Spellbook Page"))

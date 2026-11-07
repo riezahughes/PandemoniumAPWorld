@@ -2,7 +2,7 @@ from . import PandemoniumTestBase
 
 
 class TestWishingEngine(PandemoniumTestBase):
-    options = {"startinglevel": "skull_fortress"}
+    options = {"starting_level": "progressive", "starting_keys": 1}
 
     def test_game_completed_is_in_wishing_engine(self) -> None:
         self.assertEqual(self.world.get_location("Game Completed").parent_region.name, "The Wishing Engine")

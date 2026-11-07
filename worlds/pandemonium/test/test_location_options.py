@@ -16,7 +16,7 @@ class TestSingleClear(PandemoniumTestBase):
 
 
 class TestMultiClearStartAsFargus(PandemoniumTestBase):
-    options = {"multiclear": "true", "characteroption": "fargus", "startinglevel": "skull_fortress"}
+    options = {"multiclear": "true", "character_option": "fargus", "starting_level": "progressive", "starting_keys": 1}
 
     def test_only_character_level_clears(self) -> None:
         names = location_names(self)
@@ -36,7 +36,7 @@ class TestMultiClearStartAsFargus(PandemoniumTestBase):
 
 
 class TestMultiClearStartAsBoth(PandemoniumTestBase):
-    options = {"multiclear": "true", "characteroption": "both", "startinglevel": "skull_fortress"}
+    options = {"multiclear": "true", "character_option": "both", "starting_level": "progressive", "starting_keys": 1}
 
     def test_both_clears_open_from_start(self) -> None:
         self.assertTrue(self.can_reach_location("Fargus Cleared: Skull Fortress"))
@@ -44,7 +44,7 @@ class TestMultiClearStartAsBoth(PandemoniumTestBase):
 
 
 class TestRandomCharacter(PandemoniumTestBase):
-    options = {"characteroption": "random_character"}
+    options = {"character_option": "random_character"}
 
     def test_one_character_at_start_and_the_other_in_pool(self) -> None:
         self.assertEqual(len(self.world.starting_characters), 1)
@@ -53,7 +53,7 @@ class TestRandomCharacter(PandemoniumTestBase):
 
 
 class TestChallengesOff(PandemoniumTestBase):
-    options = {"fulltilt": "false", "speedgreed": "false", "multiclear": "false"}
+    options = {"full_tilt": "false", "speed_greed": "false", "multiclear": "false"}
 
     def test_challenge_locations_removed(self) -> None:
         names = location_names(self)
@@ -66,7 +66,7 @@ class TestChallengesOff(PandemoniumTestBase):
 
 
 class TestChallengesOn(PandemoniumTestBase):
-    options = {"fulltilt": "true", "speedgreed": "false"}
+    options = {"full_tilt": "true", "speed_greed": "false"}
 
     def test_only_full_tilt_included(self) -> None:
         names = location_names(self)
@@ -75,7 +75,7 @@ class TestChallengesOn(PandemoniumTestBase):
 
 
 class TestCharacterClearRules(PandemoniumTestBase):
-    options = {"multiclear": "true", "characteroption": "both", "startinglevel": "skull_fortress"}
+    options = {"multiclear": "true", "character_option": "both", "starting_level": "progressive", "starting_keys": 1}
 
     def test_character_clears_require_their_unlock(self) -> None:
         state = self.multiworld.get_all_state(False)

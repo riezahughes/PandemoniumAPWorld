@@ -15,26 +15,9 @@ class CharacterOptions:
     RANDOM_CHARACTER = 3
 
 
-class ProgressionOptions:
-    VANILLA = 0
-    OPEN = 1
-
-
 class StartingLevelOptions:
-    SKULL_FORTRESS = 0
-    RANDOM_LEVEL = 1
-
-
-class ProgressionOption(Choice):
-    """Lets the user choose how levels are unlocked
-    Vanilla - levels unlock in the game's normal order
-    Open - levels unlock when their unlock item is found
-    """
-
-    display_name = "Progression"
-    default = ProgressionOptions.VANILLA
-    option_vanilla = ProgressionOptions.VANILLA
-    option_open = ProgressionOptions.OPEN
+    RANDOM_LEVEL = 0
+    PROGRESSIVE = 1
 
 
 class GuaranteedItemsOption(ItemDict):
@@ -60,10 +43,19 @@ class CharacterOption(Choice):
 
 
 class LevelClearBothCharactersOption(Toggle):
-    """If enabled, each characters will have individual level clear checks. (NOT READY)"""
+    """If enabled, each characters will have individual level clear checks."""
 
     display_name = "Level Clear Requires Both Characters"
-    default = 0
+    default = 1
+    option_true = 1
+    option_false = 0
+
+
+class LevelPercentageOption(Toggle):
+    """If enabled, Each level will give you a check at the end based on percentage complete."""
+
+    display_name = "Include Level Percentage Checks"
+    default = 1
     option_true = 1
     option_false = 0
 
@@ -73,7 +65,8 @@ class LevelPercentageRange(Range):
     How much percentage of the level must be completed to get a check. Boss levels have no percentage checks.
     A check is given at every multiple of this number, plus one at 100% if the multiples don't land on it.
     EG: 25 gives 4 checks per level (25, 50, 75, 100), 30 gives 4 checks per level (30, 60, 90, 100),
-    60 gives 2 checks per level (60, 100), and 100 gives 1 check per level.
+    60 gives 2 checks per level (60, 100), and 100 gives 1 check per level
+    Note: stage 10, 11 and 17 are impossible to get 100% on, so it will max out at 95%.
     """
 
     display_name = "Level Completion Percentage for Checks"
@@ -104,7 +97,7 @@ class EnemySanityOption(Toggle):
     """If enabled, defeating each tracked enemy in a level gives a check. Boss levels have no enemy checks."""
 
     display_name = "EnemySanity"
-    default = 0
+    default = 1
     option_true = 1
     option_false = 0
 
@@ -137,14 +130,27 @@ class SpellbookPageRange(Range):
 
 class StartingLevelOption(Choice):
     """Lets the user choose which level is unlocked at the start of the game
-    Skull Fortress - Start with Skull Fortress unlocked
     Random Level - Start with a random level unlocked (never The Wishing Engine)
+    Progressive - Start with the first level unlocked and progress through the levels in order
     """
 
     display_name = "Starting Level"
-    default = StartingLevelOptions.SKULL_FORTRESS
-    option_skull_fortress = StartingLevelOptions.SKULL_FORTRESS
+    default = StartingLevelOptions.RANDOM_LEVEL
+    option_progressive = StartingLevelOptions.PROGRESSIVE
     option_random_level = StartingLevelOptions.RANDOM_LEVEL
+
+
+class RandomStartingKeys(Range):
+    """
+    How many keys should be given to the player at the start of a game?
+    If Random, it'll be x number of keys for any levels.
+    If Progressive, It'll be keys for level 1 onwards
+    """
+
+    display_name = "Starting Keys"
+    range_start = 1
+    range_end = 13
+    default = 1
 
 
 class DeathLinkToggle(Toggle):
@@ -158,14 +164,15 @@ class DeathLinkToggle(Toggle):
 
 @dataclass
 class PandemoniumOption(PerGameCommonOptions):
-    progression: ProgressionOption
     goal: GoalOption
     deathlink: DeathLinkToggle
     multiclear: LevelClearBothCharactersOption
-    characteroption: CharacterOption
-    startinglevel: StartingLevelOption
-    levelpercentage: LevelPercentageRange
-    speedgreed: IncludeSpeedGreedOption
-    fulltilt: IncludeFullTiltOption
+    character_option: CharacterOption
+    starting_level: StartingLevelOption
+    starting_keys: RandomStartingKeys
+    level_percentage: LevelPercentageOption
+    level_percentage_range: LevelPercentageRange
+    speed_greed: IncludeSpeedGreedOption
+    full_tilt: IncludeFullTiltOption
     enemysanity: EnemySanityOption
     spellbook_pages: SpellbookPageRange

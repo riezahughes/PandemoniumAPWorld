@@ -111,7 +111,7 @@ HEALTH_UPGRADE_COUNT = 4
 filler_item_names: List[str] = [item_data.name for item_data in _all_items if item_data.category == PandemoniumItemCategory.WEAPON] + ["Extra Life"]
 
 
-def BuildItemPool(count: int, options, random: Random, starting_level: str, starting_characters: List[str]) -> List[str]:
+def BuildItemPool(count: int, options, random: Random, starting_levels: List[str], starting_characters: List[str]) -> List[str]:
     """
     Generates a list of item names to be used for the item pool.
     This function does NOT create Archipelago Item objects; it only provides their names.
@@ -125,8 +125,9 @@ def BuildItemPool(count: int, options, random: Random, starting_level: str, star
         or item_data.category == PandemoniumItemCategory.TRANSFORMATION
     ]
 
-    # The starting level's unlock is given to the player up front instead
-    item_pool_names.remove(f"{starting_level} Unlock")
+    # The starting levels' unlocks are given to the player up front instead
+    for level in starting_levels:
+        item_pool_names.remove(f"{level} Unlock")
 
     # Only the characters you don't start with go into the pool
     for character in ("Fargus", "Nikki"):

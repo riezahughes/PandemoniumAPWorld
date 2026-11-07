@@ -201,13 +201,29 @@ CHARACTERS = ("Fargus", "Nikki")
 BOSS_LEVELS = ("Shroom Lord", "Goon Honcho")
 
 
-def percentage_thresholds(step: int) -> List[int]:
-    """Every multiple of `step` below 100, then 100 itself. This gives ceil(100 / step) checks per level."""
-    return list(range(step, 100, step)) + [100]
+# Levels whose treasure percentage never goes above 95% in game, so their top check is 95% instead of 100%
+MAX_PERCENTAGE_OVERRIDES: Dict[str, int] = {
+    "Canopy Village": 95,
+    "Soldier Barracks": 95,
+    "Frozen Cavern": 95,
+}
+
+
+def max_percentage(level: str) -> int:
+    return MAX_PERCENTAGE_OVERRIDES.get(level, 100)
+
+
+def percentage_thresholds(step: int, maximum: int = 100) -> List[int]:
+    """Every multiple of `step` below `maximum`, then `maximum` itself. This gives ceil(maximum / step) checks per level."""
+    return list(range(step, maximum, step)) + [maximum]
 
 
 def percentage_from_name(name: str) -> int:
     return int(name.split(" Percent Cleared: ")[0])
+
+
+def percentage_level_from_name(name: str) -> str:
+    return name.split(" Percent Cleared: ")[1]
 
 
 # Each level clear also gets a per-character clear, used when levels must be cleared as both characters.
@@ -222,7 +238,7 @@ for location_table in location_tables.values():
         )
 
 # Every possible percentage check (1% to 100%) for every non-boss level, so the IDs are the same whatever the
-# player chooses. Each world only keeps the thresholds its option produces. Appended last so earlier IDs never move.
+# player chooses. Each world only keeps the thresholds its option produces (levels capped at 95% never use 96 to 100). Appended last so earlier IDs never move.
 for region_name, location_table in location_tables.items():
     has_level_clear = any(location_data.category == PandemoniumLocationCategory.LEVEL_CLEAR for location_data in location_table)
     if not has_level_clear or region_name in BOSS_LEVELS:

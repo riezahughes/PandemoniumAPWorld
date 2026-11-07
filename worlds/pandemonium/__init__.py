@@ -14,14 +14,16 @@ from .Locations import (
     location_dictionary,
     percentage_thresholds,
     percentage_from_name,
+    percentage_level_from_name,
+    max_percentage,
 )
 from .Options import PandemoniumOption, StartingLevelOptions, CharacterOptions
 from .Rules import set_level_unlock_rules, set_wishing_engine_rules, set_character_clear_rules
 from .VictoryConditions import credits_victory
 
 
-# Levels that can be picked as a random starting level. The Wishing Engine is left out, as it has no
-# unlock item and holds the game clear.
+# Levels whose keys can be given at the start, in level order (Progressive takes them from the front, Random picks
+# from anywhere). The Wishing Engine is left out, as it has no unlock item and holds the game clear.
 random_starting_levels = [region_name for region_name in location_tables if region_name not in ("Menu", "Map", "The Wishing Engine")]
 
 
@@ -62,18 +64,27 @@ class PandemoniumWorld(World):
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
         self.enabled_location_categories = set()
-        self.starting_level = "Skull Fortress"
+        # the levels whose keys the player starts with
+        self.starting_levels: List[str] = ["Skull Fortress"]
         self.spell_pages_required = 0
         self.starting_characters: List[str] = ["Fargus"]
-        self.percentages: Set[int] = set()
+        # the percentage thresholds each level gives checks at
+        self.percentages: Dict[str, Set[int]] = {}
 
     def generate_early(self):
-        if self.options.startinglevel.value == StartingLevelOptions.RANDOM_LEVEL:
-            self.starting_level = self.random.choice(random_starting_levels)
+        starting_keys = min(self.options.starting_keys.value, len(random_starting_levels))
+        if self.options.starting_level.value == StartingLevelOptions.RANDOM_LEVEL:
+            # any levels, in level order so they read nicely
+            picked = set(self.random.sample(random_starting_levels, starting_keys))
+            self.starting_levels = [level for level in random_starting_levels if level in picked]
+        else:
+            # Progressive: the first levels in order, so 3 keys gives Skull Fortress, Hollow Stairway and Dungeon Tower
+            self.starting_levels = random_starting_levels[:starting_keys]
 
-        self.percentages = set(percentage_thresholds(self.options.levelpercentage.value))
+        step = self.options.level_percentage_range.value
+        self.percentages = {level: set(percentage_thresholds(step, max_percentage(level))) for level in location_tables}
 
-        character_option = self.options.characteroption.value
+        character_option = self.options.character_option.value
         if character_option == CharacterOptions.NIKKI:
             self.starting_characters = ["Nikki"]
         elif character_option == CharacterOptions.BOTH:
@@ -100,13 +111,15 @@ class PandemoniumWorld(World):
         if location.category == PandemoniumLocationCategory.CHARACTER_CLEAR:
             return multiclear
         if location.category == PandemoniumLocationCategory.PINBALL_CLEAR:  # Full Tilt
-            return bool(self.options.fulltilt.value)
+            return bool(self.options.full_tilt.value)
         if location.category == PandemoniumLocationCategory.RACE_CLEAR:  # Speed Greed
-            return bool(self.options.speedgreed.value)
+            return bool(self.options.speed_greed.value)
         if location.category == PandemoniumLocationCategory.ENEMY_KILL:
             return bool(self.options.enemysanity.value)
         if location.category == PandemoniumLocationCategory.LEVEL_PERCENTAGE:
-            return percentage_from_name(location.name) in self.percentages
+            if not self.options.level_percentage.value:
+                return False
+            return percentage_from_name(location.name) in self.percentages[percentage_level_from_name(location.name)]
         return True
 
     def create_regions(self):
@@ -198,8 +211,9 @@ class PandemoniumWorld(World):
         return new_region
 
     def create_items(self):
-        # Start the player with their starting level already unlocked
-        self.multiworld.push_precollected(self.create_item(f"{self.starting_level} Unlock"))
+        # Start the player with their starting levels already unlocked
+        for level in self.starting_levels:
+            self.multiworld.push_precollected(self.create_item(f"{level} Unlock"))
 
         # ...and with their starting characters, so every character rule can simply check for the unlock
         for character in self.starting_characters:
@@ -211,7 +225,7 @@ class PandemoniumWorld(World):
                 randomized_location_count += 1
 
         # Call BuildItemPool to get a list of item NAMES (strings)
-        item_names_to_add = BuildItemPool(randomized_location_count, self.options, self.random, self.starting_level, self.starting_characters)
+        item_names_to_add = BuildItemPool(randomized_location_count, self.options, self.random, self.starting_levels, self.starting_characters)
 
         # With few checks enabled there may not be room for everything. Health upgrades are the only
         # non-progression items that have to exist, so any that don't fit are given at the start instead.
@@ -288,16 +302,18 @@ class PandemoniumWorld(World):
 
         slot_data = {
             "options": {
-                "progression": self.options.progression.value,
                 "goal": self.options.goal.value,
                 "deathlink": self.options.deathlink.value,
                 "multiclear": self.options.multiclear.value,
-                "characteroption": self.options.characteroption.value,
-                "startingcharacters": self.starting_characters,
-                "startinglevel": self.starting_level,
-                "levelpercentage": self.options.levelpercentage.value,
-                "speedgreed": self.options.speedgreed.value,
-                "fulltilt": self.options.fulltilt.value,
+                "character_option": self.options.character_option.value,
+                "starting_characters": self.starting_characters,
+                "starting_level": self.options.starting_level.value,
+                "starting_keys": self.options.starting_keys.value,
+                "starting_levels": self.starting_levels,
+                "level_percentage": self.options.level_percentage.value,
+                "level_percentage_range": self.options.level_percentage_range.value,
+                "speed_greed": self.options.speed_greed.value,
+                "full_tilt": self.options.full_tilt.value,
                 "enemysanity": self.options.enemysanity.value,
                 "spellbook_pages": self.spell_pages_required,
             },

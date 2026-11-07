@@ -2,7 +2,7 @@ from . import PandemoniumTestBase
 
 
 class TestStartAsFargus(PandemoniumTestBase):
-    options = {"characteroption": "fargus"}
+    options = {"character_option": "fargus"}
 
     def test_only_nikki_in_pool(self) -> None:
         self.assertEqual(len(self.get_items_by_name("Nikki Unlock")), 1)
@@ -10,7 +10,7 @@ class TestStartAsFargus(PandemoniumTestBase):
 
 
 class TestStartAsNikki(PandemoniumTestBase):
-    options = {"characteroption": "nikki"}
+    options = {"character_option": "nikki"}
 
     def test_only_fargus_in_pool(self) -> None:
         self.assertEqual(len(self.get_items_by_name("Fargus Unlock")), 1)
@@ -18,7 +18,7 @@ class TestStartAsNikki(PandemoniumTestBase):
 
 
 class TestStartAsBoth(PandemoniumTestBase):
-    options = {"characteroption": "both"}
+    options = {"character_option": "both"}
 
     def test_no_characters_in_pool(self) -> None:
         self.assertEqual(len(self.get_items_by_name("Fargus Unlock")), 0)
