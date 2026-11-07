@@ -106,7 +106,7 @@ class PointSanityOption(Toggle):
     """If enabled, each level gives checks as you collect its treasure points. Boss levels have no point checks."""
 
     display_name = "Pointsanity"
-    default = 0
+    default = 1
     option_true = 1
     option_false = 0
 

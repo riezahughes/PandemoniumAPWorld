@@ -85,7 +85,7 @@ _all_items = [
     ("Dragon Transformation Unlock", 31, PandemoniumItemCategory.TRANSFORMATION, True),
     ("Turtle Transformation Unlock", 32, PandemoniumItemCategory.TRANSFORMATION, True),
     # Player Stat Items
-    ("Progressive Health Upgrade", 34, PandemoniumItemCategory.STAT_ITEM, False),
+    ("Progressive Health Upgrade", 34, PandemoniumItemCategory.STAT_ITEM, True),
     ("Free Health", 35, PandemoniumItemCategory.STAT_ITEM, False),
     ("Extra Life", 36, PandemoniumItemCategory.STAT_ITEM, False),
     # Progression Items
