@@ -181,7 +181,7 @@ class SpellbookPageRange(Range):
 
 class StartingLevelOption(Choice):
     """Lets the user choose which level is unlocked at the start of the game
-    Random Level - Start with a random level unlocked (never The Wishing Engine)
+    Random Level - Start with a random level unlocked (never a boss level or The Wishing Engine)
     Progressive - Start with the first level unlocked and progress through the levels in order
     """
 
@@ -200,7 +200,7 @@ class RandomStartingKeys(Range):
 
     display_name = "Starting Keys"
     range_start = 1
-    range_end = 13
+    range_end = 18
     default = 1
 
 

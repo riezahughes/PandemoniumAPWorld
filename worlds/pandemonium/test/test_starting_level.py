@@ -1,5 +1,6 @@
 from . import PandemoniumTestBase
 from .. import random_starting_levels
+from ..Locations import BOSS_LEVELS
 
 
 def starting_unlocks(test: PandemoniumTestBase) -> list[str]:
@@ -56,3 +57,24 @@ class TestRandomFiveKeys(PandemoniumTestBase):
             self.assertTrue(self.can_reach_region(level))
             self.assertEqual(len(self.get_items_by_name(f"{level} Unlock")), 0)
         self.assertEqual(len(starting_unlocks(self)), 5)
+
+class TestNoBossStartingKeys(PandemoniumTestBase):
+    options = {"starting_level": "random_level", "starting_keys": 13}
+
+    def test_boss_unlock_never_at_start(self) -> None:
+        for boss in BOSS_LEVELS:
+            self.assertNotIn(boss, self.world.starting_levels)
+            self.assertEqual(len(self.get_items_by_name(f"{boss} Unlock")), 1)
+            self.assertNotIn(f"{boss} Unlock", [item.name for item in self.multiworld.precollected_items[self.player]])
+
+
+class TestProgressiveAllKeys(PandemoniumTestBase):
+    options = {"starting_level": "progressive", "starting_keys": 18}
+
+    def test_every_non_boss_level_unlocked(self) -> None:
+        self.assertEqual(len(random_starting_levels), 18)
+        self.assertEqual(self.world.starting_levels, random_starting_levels)
+        for level in random_starting_levels:
+            self.assertTrue(self.can_reach_region(level))
+        for boss in BOSS_LEVELS:
+            self.assertFalse(self.can_reach_region(boss))

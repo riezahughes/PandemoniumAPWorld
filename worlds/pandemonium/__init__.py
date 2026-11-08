@@ -12,6 +12,7 @@ from .Locations import (
     PandemoniumLocationData,
     location_tables,
     location_dictionary,
+    BOSS_LEVELS,
     percentage_thresholds,
     percentage_from_name,
     percentage_level_from_name,
@@ -26,8 +27,8 @@ from .VictoryConditions import credits_victory
 
 
 # Levels whose keys can be given at the start, in level order (Progressive takes them from the front, Random picks
-# from anywhere). The Wishing Engine is left out, as it has no unlock item and holds the game clear.
-random_starting_levels = [region_name for region_name in location_tables if region_name not in ("Menu", "Map", "The Wishing Engine")]
+# from anywhere). Boss levels are never given at the start, and The Wishing Engine is left out as it has no unlock item.
+random_starting_levels = [region_name for region_name in location_tables if region_name not in ("Menu", "Map", "The Wishing Engine") and region_name not in BOSS_LEVELS]
 
 
 class PandemoniumWeb(WebWorld):
