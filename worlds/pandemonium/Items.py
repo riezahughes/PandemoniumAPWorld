@@ -105,8 +105,6 @@ item_descriptions = {
 item_dictionary: dict[str, PandemoniumItemData] = {item_data.name: item_data for item_data in _all_items}
 
 
-HEALTH_UPGRADE_COUNT = 4
-
 # Items used to pad out the pool once everything else has been added
 filler_item_names: List[str] = [item_data.name for item_data in _all_items if item_data.category == PandemoniumItemCategory.WEAPON] + ["Extra Life"]
 
@@ -134,7 +132,7 @@ def BuildItemPool(count: int, options, random: Random, starting_levels: List[str
         if character not in starting_characters:
             item_pool_names.append(f"{character} Unlock")
 
-    item_pool_names.extend(["Progressive Health Upgrade"] * HEALTH_UPGRADE_COUNT)
+    item_pool_names.extend(["Progressive Health Upgrade"] * options.max_health_containers.value)
 
     # Spell pages only go in for the spell page goals, and are capped to the room left in the pool
     if options.goal.value in (GoalOptions.SPELL_PAGES, GoalOptions.BOTH):

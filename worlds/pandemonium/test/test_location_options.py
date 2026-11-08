@@ -59,10 +59,10 @@ class TestChallengesOff(PandemoniumTestBase):
         names = location_names(self)
         self.assertFalse(any(name.startswith(("Full Tilt: ", "Speed Greed: ")) for name in names))
 
-    def test_health_upgrades_still_total_four(self) -> None:
+    def test_health_upgrades_still_total_default(self) -> None:
         in_pool = len(self.get_items_by_name("Progressive Health Upgrade"))
         at_start = sum(item.name == "Progressive Health Upgrade" for item in self.multiworld.precollected_items[self.player])
-        self.assertEqual(in_pool + at_start, 4)
+        self.assertEqual(in_pool + at_start, 8)
 
 
 class TestChallengesOn(PandemoniumTestBase):

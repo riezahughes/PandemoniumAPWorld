@@ -204,6 +204,18 @@ class RandomStartingKeys(Range):
     default = 1
 
 
+class MaxHealthContainers(Range):
+    """
+    How many Progressive Health Upgrades are in the game. Each one adds a heart container.
+    More containers makes the game easier. If there isn't room for them all in the item pool, the rest are given at the start.
+    """
+
+    display_name = "Max Health Containers"
+    range_start = 1
+    range_end = 16
+    default = 5
+
+
 class DeathLinkToggle(Toggle):
     """Sets if you want deathlink or not"""
 
@@ -231,3 +243,4 @@ class PandemoniumOption(PerGameCommonOptions):
     pointsanity: PointSanityOption
     pointsanity_range: PointSanityRange
     spellbook_pages: SpellbookPageRange
+    max_health_containers: MaxHealthContainers

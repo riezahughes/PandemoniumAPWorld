@@ -335,6 +335,7 @@ class PandemoniumWorld(World):
                 "pointsanity": self.options.pointsanity.value,
                 "pointsanity_range": self.options.pointsanity_range.value,
                 "spellbook_pages": self.spell_pages_required,
+                "max_health_containers": self.options.max_health_containers.value,
             },
             "seed": self.multiworld.seed_name,  # to verify the server's multiworld
             "slot": self.multiworld.player_name[self.player],  # to connect to server
